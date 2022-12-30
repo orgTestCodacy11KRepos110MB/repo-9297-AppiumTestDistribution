@@ -77,6 +77,12 @@ jobs:
     machine:
       image: ubuntu-2004:2022.07.1
     resource_class: large
+    environment:
+      ANDROID_HOME: /home/circleci/android-sdk
+      ANDROID_SDK_ROOT: $ANDROID_HOME
+      CMDLINE_TOOLS_ROOT: ${ANDROID_HOME}/cmdline-tools/latest/bin
+      ADB_INSTALL_TIMEOUT: 120
+      PATH: ${ANDROID_HOME}/emulator:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/platform-tools/bin:${PATH}
     steps:
       - checkout
       - run: apt list --installed
@@ -87,12 +93,6 @@ jobs:
       - run:
           name: Install Android stuffs
           command: |
-            ENV ANDROID_HOME "/home/circleci/android-sdk"
-            ENV ANDROID_SDK_ROOT $ANDROID_HOME
-            ENV CMDLINE_TOOLS_ROOT "${ANDROID_HOME}/cmdline-tools/latest/bin"
-            ENV ADB_INSTALL_TIMEOUT 120
-            ENV PATH "${ANDROID_HOME}/emulator:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/platform-tools/bin:${PATH}"
-            # You can find the latest command line tools here: https://developer.android.com/studio#command-line-tools-only
             RUN SDK_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-9123335_latest.zip" && \
             	mkdir -p ${ANDROID_HOME}/cmdline-tools && \
             	mkdir ${ANDROID_HOME}/platforms && \
