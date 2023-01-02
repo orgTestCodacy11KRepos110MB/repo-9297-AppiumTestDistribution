@@ -87,6 +87,7 @@ jobs:
       - run:
           name: Install Android stuffs
           command: |
+            echo ${ANDROID_HOME}
             SDK_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-9123335_latest.zip" && \
             mkdir -p ${ANDROID_HOME}/cmdline-tools && \
             mkdir ${ANDROID_HOME}/platforms && \
