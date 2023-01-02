@@ -1,29 +1,26 @@
-#!/bin/bash
-# from https://gist.github.com/Igor1201/5036401727a9c178193b1e0688e1eb3c
+if [ -d $ANDROID_SDK_ROOT ]
+then
+    echo "Directory $ANDROID_SDK_ROOT already exists so we're skipping the install. If you'd like to install fresh tools, edit this script to invalidate the CI cache."
+    exit 0
+fi
 
-export ANDROID_HOME="/usr/local/share/android-sdk"
-export PATH="$PATH:$ANDROID_HOME/tools/bin"
+mkdir -p $ANDROID_SDK_ROOT
+cd $ANDROID_SDK_ROOT
+curl https://dl.google.com/android/repository/sdk-tools-darwin-4333796.zip -o sdk-tools.zip
 
-# set variables
-ANDROID_SDK_URL="https://dl.google.com/android/repository/sdk-tools-darwin-3859397.zip"
-ANDROID_SDK_SHA="4a81754a760fce88cba74d69c364b05b31c53d57b26f9f82355c61d5fe4b9df9"
-TMP_DIR=$(mktemp -d)
+unzip sdk-tools.zip
 
-# clean
-rm -rf "$ANDROID_HOME"
+mkdir -p "$ANDROID_SDK_ROOT/licenses"
 
-# download and install sdk
-cd "$TMP_DIR"
-curl "$ANDROID_SDK_URL" > "sdk.zip"
-echo "$ANDROID_SDK_SHA *sdk.zip" | shasum -c -s -a 256 -
-unzip "sdk.zip" -d "$ANDROID_HOME"
+echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_SDK_ROOT/licenses/android-sdk-license"
+echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_SDK_ROOT/licenses/android-sdk-preview-license"
+echo "d975f751698a77b662f1254ddbeed3901e976f5a" > "$ANDROID_SDK_ROOT/licenses/intel-android-extra-license"
 
-# sdkmanager configuration
-mkdir -p "$HOME/.android"
-echo "count=0" > "$HOME/.android/repositories.cfg"
+SDKMANAGER=$ANDROID_SDK_ROOT/tools/bin/sdkmanager
 
-# install what you need
-echo y | sdkmanager "platforms;android-25"
-echo y | sdkmanager "build-tools;25.0.3"
-echo y | sdkmanager "extras;android;m2repository"
-echo y | sdkmanager "extras;google;m2repository"
+$SDKMANAGER "platform-tools"
+$SDKMANAGER "platforms;android-29"
+$SDKMANAGER "build-tools;29.0.2"
+$SDKMANAGER "ndk-bundle"
+$SDKMANAGER "system-images;android-29;google_apis;x86_64"
+$SDKMANAGER "emulator"
