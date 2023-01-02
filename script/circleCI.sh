@@ -1,6 +1,5 @@
 #!/bin/bash
 # from https://gist.github.com/Igor1201/5036401727a9c178193b1e0688e1eb3c
-set -eo pipefail
 
 export ANDROID_HOME="/usr/local/share/android-sdk"
 export PATH="$PATH:$ANDROID_HOME/tools/bin"
