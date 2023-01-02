@@ -74,23 +74,26 @@ jobs:
             Platform='android' CONFIG_FILE='./configs/config.properties' mvn clean -Dtest=Runner test -Dcheckstyle.skip
 
   AndroidUBUNTU:
-    machine:
-      macos:
-        xcode: 14.1.0
+    macos:
+      xcode: 14.1.0
+    environment:
+      JAVA_HOME: /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
     steps:
       - checkout
       - run:
-         name: set ANDROID_SDK_ROOT
-         command: |
-           echo 'export ANDROID_SDK_ROOT=$HOME/android-tools'  >> $BASH_ENV
+          name: set ANDROID_SDK_ROOT
+          command: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask homebrew/cask-versions/adoptopenjdk8
+            export PATH=$JAVA_HOME/bin:$PATH
+            echo 'export ANDROID_SDK_ROOT=$HOME/android-tools'  >> $BASH_ENV
 
       - restore_cache:
-          key: android=tools-v1-{{ checksum "scripts/install-android-tools.sh" }}-{{ arch }}
+          key: android=tools-v1-{{ checksum "script/circleCI.sh" }}-{{ arch }}
 
       - run:
           name: install android tools
           command: |
-            sh scripts/circleCI.sh
+            sh script/circleCI.sh
             echo 'export PATH=$ANDROID_SDK_ROOT/tools/bin:$PATH'  >> $BASH_ENV
             echo 'export PATH=$ANDROID_SDK_ROOT/tools:$PATH'  >> $BASH_ENV
             echo 'export PATH=$ANDROID_SDK_ROOT/platform-tools:$PATH'  >> $BASH_ENV
@@ -99,38 +102,40 @@ jobs:
             sdkmanager --list
 
       - save_cache:
-          key: android=tools-v1-{{ checksum "scripts/install-android-tools.sh" }}-{{ arch }}
+          key: android=tools-v1-{{ checksum "script/circleCI.sh" }}-{{ arch }}
           paths:
             - /Users/distiller/android-tools
 
       - run:
           name: create AVD
-          command: make create-avd
+          command: |
+            echo "no" | avdmanager create avd -n test_device -k 'system-images;android-29;google_apis;x86_64' --force
+            echo $ANDROID_HOME/emulator/emulator -list-avds
 
       - run:
-         name: start AVD
-         command: emulator-headless -avd android-tablet
-         background: true
+          name: start AVD
+          command: emulator -avd test_device -no-snapshot > /dev/null 2>&1 &
+          background: true
 
       - run:
-         name: wait for emulator
-         command: adb wait-for-device shell 'while [[ -z $(getprop dev.bootcomplete) ]]; do sleep 1; done;'
+          name: wait for emulator
+          command: adb wait-for-device shell 'while [[ -z $(getprop dev.bootcomplete) ]]; do sleep 1; done;'
 
       - run: adb shell screencap -p > screenshots/before.png
 
-            # (insert testing here)
+        # (insert testing here)
 
       - store_artifacts:
-           path: screenshots
+          path: screenshots
       - run: echo $ANDROID_HOME
   BrowserStack:
-      machine:
-       image: android:202102-01
+    machine:
+      image: android:202102-01
     # To optimize build times, we recommend "large" and above for Android-related jobs
-      resource_class: large
-      steps:
-       - checkout
-       - run:
+    resource_class: large
+    steps:
+      - checkout
+      - run:
           name: Install Appium and Run Android Test
           command: |
             nvm install v16.18.1 && nvm alias default 16.18.1 

@@ -4,6 +4,8 @@ then
     exit 0
 fi
 
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
+
 mkdir -p $ANDROID_SDK_ROOT
 cd $ANDROID_SDK_ROOT
 curl https://dl.google.com/android/repository/sdk-tools-darwin-4333796.zip -o sdk-tools.zip
