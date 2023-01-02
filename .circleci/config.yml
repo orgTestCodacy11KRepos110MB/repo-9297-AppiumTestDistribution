@@ -110,16 +110,15 @@ jobs:
           name: create AVD
           command: |
             echo "no" | avdmanager create avd -n test_device -k 'system-images;android-29;google_apis;x86_64' --force
-            echo $ANDROID_HOME/emulator/emulator -list-avds
+            echo emulator -list-avds
 
       - run:
           name: start AVD
-          command: emulator -avd test_device -no-snapshot > /dev/null 2>&1 &
-          background: true
+          command: emulator -avd test_device -no-snapshot > /dev/null 2>&1 & adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
 
       - run:
-          name: wait for emulator
-          command: adb wait-for-device shell 'while [[ -z $(getprop dev.bootcomplete) ]]; do sleep 1; done;'
+          name: Devices
+          command: adb devices
 
       - run: adb shell screencap -p > screenshots/before.png
 
