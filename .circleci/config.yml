@@ -75,7 +75,7 @@ jobs:
 
   AndroidUBUNTU:
     machine:
-      image: ubuntu-2004:2022.07.1
+      image: ubuntu-2204:2022.10.2
     resource_class: large
     environment:
       ANDROID_HOME: /home/circleci/android-sdk
@@ -84,7 +84,6 @@ jobs:
       ADB_INSTALL_TIMEOUT: 120
       PATH: ${ANDROID_HOME}/emulator:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/platform-tools/bin:${PATH}
     steps:
-      - run: apt install git
       - checkout
       - run: apt list --installed
       - run: mvn --version
